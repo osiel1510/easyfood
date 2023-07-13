@@ -1,0 +1,40 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+.modal-overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+
+  .editar-imagen {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .editar-imagen:hover img {
+    filter: brightness(50%); /* Aplicar un efecto de oscurecimiento a la imagen */
+  }
+  
+  .editar-imagen .editar-texto {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  
+  .editar-imagen:hover .editar-texto {
+    opacity: 1; /* Mostrar el texto al poner el cursor encima */
+  }
+  
