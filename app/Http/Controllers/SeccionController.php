@@ -44,4 +44,10 @@ class SeccionController extends Controller
         return redirect()->route('post.index');
 
     }
+
+    public function destroy(Section $seccion)
+    {
+        $seccion->delete();
+        return redirect()->route('secciones.index')->with('success', 'Sección eliminada correctamente');
+    }
 }

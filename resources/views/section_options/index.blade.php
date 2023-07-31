@@ -1,6 +1,5 @@
-
 @extends('layouts.footer')
-@extends('modals.section')
+@extends('section_options.modal')
 @extends('modals.editarRestaurante')
 @extends('modals.imagenRestaurante')
 @extends('layouts.restaurantLeftMenu')
@@ -25,11 +24,11 @@ EasyFood
     <div style="height: 100%; width: 80%; margin-left: 18%;" class="flex justify-end" >
         <div style="width: 80%;" class="mt-28">
             <div class="container mx-auto flex flex-col items-center">
-                @if($secciones->count() == 0)
+                @if($sectionOptions->count() == 0)
 
-                    <h1 class="font-bold text-5xl w-4/5 text-center text-blue-700">¡Parece que no tienes ninguna seccion aun!</h1>
+                    <h1 class="font-bold text-5xl w-4/5 text-center text-blue-700">¡Parece que no tienes ninguna sección de extras aún!</h1>
 
-                    <p class="mt-10 text-2xl w-4/5 text-center">Agrega una seccion para empezar</p>
+                    <p class="mt-10 text-2xl w-4/5 text-center">Agrega una sección para empezar</p>
 
                 @else
 
@@ -37,23 +36,28 @@ EasyFood
                         <tr class="bg-blue-700 text-white">
                             <th>Nombre</th>
                             <th>Disponible</th>
+                            <th>Minimo</th>
+                            <th>Maximo</th>
                             <th></th>
                             <th></th>
                         </tr>
-                        @foreach($secciones as $seccion)
+                        @foreach($sectionOptions as $sectionOption)
                             <tr>
-                                <td class="pl-5 pr-5 text-center">{{$seccion->nombre}}</td>
+                                <td class="pl-5 pr-5 text-center">{{ $sectionOption->nombre }}</td>
                                 <td class="pl-5 pr-5 text-center">
-                                    @if($seccion->disponibilidad == 1)
+                                    @if($sectionOption->disponibilidad == 1)
                                         Si
                                     @else
                                         No
                                     @endif
 
                                 </td>
-                                <td class="pl-5 pr-5"><a class="text-center text-blue-700" href="">Editar</a></td>
+                                <td class="pl-5 pr-5 text-center">{{ $sectionOption->minimo }}</td>
+                                <td class="pl-5 pr-5 text-center">{{ $sectionOption->maximo }}</td>
+
+                                <td class="pl-5 pr-5"><a class="text-center text-blue-700">Editar</a></td>
                                 <td class="pl-5 pr-5">
-                                    <form action="{{ route('secciones.destroy', $seccion->id) }}" method="POST">
+                                    <form action="{{ route('section_options.destroy', $sectionOption->id) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
                                         <button class="text-center text-blue-700" type="submit">Eliminar</button>
@@ -76,10 +80,10 @@ EasyFood
 </div>
 
 @section('accionLeftMenu')
-Agregar sección
+Agregar Sección de Extra
 @endsection
 
-@section('seccionesSeleccionadas')
+@section('sectionOptionSeleccionadas')
 border-blue-900 bg-gray-200 border-r-8
 @endsection
 

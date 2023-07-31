@@ -2,23 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Option extends Model
 {
-    use HasFactory;
+    protected $fillable = ['section_options_id', 'restaurant_id', 'nombre', 'precio', 'disponibilidad'];
 
+    public function sectionOption()
+    {
+        return $this->belongsTo(SectionOption::class, 'section_options_id');
+    }
 
-    protected $table = 'productos';
-
-    protected $fillable = [
-        'descripcionCorta',
-        'descripcionLarga',
-        'precioVenta',
-        'precioCompra',
-        'stock',
-        'fechaRegistro',
-        'pesoProducto',
-    ];
+    public function restaurant()
+    {
+        return $this->belongsTo(Restaurant::class);
+    }
 }

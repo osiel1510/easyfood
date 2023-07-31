@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Product;
+use App\Models\Horario;
+use App\Models\Restaurant;
+use App\Models\User;
+use App\Models\Section;
 use Carbon\Carbon;
 
 class ProductoController extends Controller
@@ -20,8 +24,8 @@ class ProductoController extends Controller
         });
     }
 
-    public function index(){
-
+    public function index()
+    {
 
         $userId = Auth::id();
         $user = User::where('id',$userId)->first();
@@ -33,54 +37,66 @@ class ProductoController extends Controller
             ->where('day_of_week', $dayOfWeek)
             ->get();
 
-        $productos = Product::where('section_id',$restaurant->id)->get();
-        return view("productos",[
+        $productos = Product::where('restaurant_id',$restaurant->id)->get();
+
+        $sections = Section::where('restaurant_id',$restaurant->id)->get();
+
+        return view("products.index",[
             'user'=>$user,
             'restaurant'=>$restaurant,
             'horarios'=>$horarios,
-            'secciones'=>$secciones,
+            'products'=>$productos,
+            'sections'=>$sections,
         ]);
 
-
-        $productos = Product::all();
-        return view('productos', compact('productos'));
     }
 
-    public function store(Request $request){
-    // Validar los campos del formulario
-    $validatedData = $request->validate([
-        'descripcionCorta' => 'required',
-        'descripcionLarga' => 'required',
-        'precioVenta' => 'required|numeric',
-        'precioCompra' => 'required|numeric',
-        'stock' => 'required|integer',
-        'pesoProducto' => 'required|numeric',
-    ]);
-
-    // Crear un nuevo registro en la base de datos
-    Producto::create([
-        'descripcionCorta' => $validatedData['descripcionCorta'],
-        'descripcionLarga' => $validatedData['descripcionLarga'],
-        'precioVenta' => $validatedData['precioVenta'],
-        'precioCompra' => $validatedData['precioCompra'],
-        'stock' => $validatedData['stock'],
-        'pesoProducto' => $validatedData['pesoProducto'],
-        'fechaRegistro' => Carbon::now()->toDateString(),
-    ]);
-
-    return redirect()->route('productos.index');
-
-    }
-
-    public function delete(Request $request, $id)
+    public function store(Request $request)
     {
-        // Buscar el producto por su ID
-        $producto = Producto::findOrFail($id);
+        $product = new Product();
+        $product->nombre = $request->input('nombre');
+        $product->disponibilidad = $request->input('disponibilidad');
+        $product->imagen = $request->input('image2');
+        $product->descripcion = $request->input('descripcion');
+        $product->precio = $request->input('precio');
+        $product->sections_id = $request->input('sections_id');
+        $product->restaurant_id = $request->input('restaurant_id');
+        $product->save();
 
-        // Eliminar el producto
-        $producto->delete();
+        return redirect()->route('products.index')->with('success', 'Producto creado correctamente');
+    }
 
-        // Redireccionar a la página deseada después de la eliminación
-        return redirect()->route('productos.index');
+    public function show($id)
+    {
+        $userId = Auth::id();
+        $user = User::where('id',$userId)->first();
+        $restaurant = Restaurant::where('user_id',$userId)->first();
+
+        $dayOfWeek = Carbon::now()->dayOfWeek; // Día de la semana actual
+
+        $horarios = Horario::where('restaurant_id', $restaurant->id)
+            ->where('day_of_week', $dayOfWeek)
+            ->get();
+
+        $producto = Product::where('id',$id)->first();
+
+        $sections = Section::where('restaurant_id',$restaurant->id)->get();
+
+        return view("products.show",[
+            'user'=>$user,
+            'restaurant'=>$restaurant,
+            'horarios'=>$horarios,
+            'product'=>$producto,
+            'sections'=>$sections,
+        ]);
+    }
+
+    public function destroy(Product $product)
+    {
+        $product->delete();
+
+        return redirect()->route('products.index')->with('success', 'Producto eliminado correctamente');
     }
 }
+
+
