@@ -26,9 +26,10 @@
         <button id="openModalRestauranteBtn" class="hover:bg-gray-200 text-blue-950 mt-2 pt-1 pb-1 pl-3 pr-3 self-center flex justify-center items-center border-blue-800 border-2 rounded-lg">
             <p class="ml-2 text-xl font-bold">EDITAR RESTAURANTE</p>
         </button>
-        <a href="demo"  class="hover:bg-gray-200 text-blue-950 mt-2 pt-1 pb-1 pl-3 pr-3 self-center flex justify-center items-center border-blue-800 border-2 rounded-lg">
+        <a href="{{ route('menu.show', ['restaurant' => $restaurant->id]) }}"  class="hover:bg-gray-200 text-blue-950 mt-2 pt-1 pb-1 pl-3 pr-3 self-center flex justify-center items-center border-blue-800 border-2 rounded-lg">
             <p class="ml-2 text-xl font-bold">VISUALIZAR MENÚ</p>
         </a>
+
     </div>
 
     <div style="width:90%" class="mt-5 flex-col flex justify-center items-center">

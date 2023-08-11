@@ -16,4 +16,14 @@ class Section extends Model
         'disponibilidad' => 'boolean',
         'restaurant_id',
     ];
+
+    public function restaurant()
+    {
+        return $this->belongsTo(Restaurant::class);
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'sections_id');
+    }
 }

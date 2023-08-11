@@ -45,6 +45,27 @@ class SeccionController extends Controller
 
     }
 
+    public function update(Request $request, $id){
+
+        // Buscar la sección por ID
+        $section = Section::find($id);
+
+        // Verificar si se encontró la sección
+        if(!$section) {
+            return redirect()->route('post.index')->with('error', 'Sección no encontrada');
+        }
+
+        // Actualizar los campos
+        $section->nombre = $request->nombre;
+        $section->disponibilidad = $request->has('disponibilidad');
+        $section->restaurant_id = $request->restaurant_id;
+        $section->save();
+
+        // Redireccionar con un mensaje de éxito
+        return redirect()->route('post.index')->with('success', 'Sección actualizada exitosamente');
+    }
+
+
     public function destroy(Section $seccion)
     {
         $seccion->delete();

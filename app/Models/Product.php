@@ -17,13 +17,16 @@ class Product extends Model
         'precio',
     ];
 
+    public function section()
+    {
+        return $this->belongsTo(Section::class, 'sections_id');
+    }
+
     public function sectionOption()
     {
         return $this->belongsTo(Section_Option::class, 'section_options_id');
     }
 
-    public function section()
-    {
-        return $this->belongsTo(Section::class, 'sections_id');
-    }
 }
+
+

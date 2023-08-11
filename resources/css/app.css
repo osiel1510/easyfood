@@ -16,11 +16,11 @@
     position: relative;
     display: inline-block;
   }
-  
+
   .editar-imagen:hover img {
     filter: brightness(50%); /* Aplicar un efecto de oscurecimiento a la imagen */
   }
-  
+
   .editar-imagen .editar-texto {
     position: absolute;
     top: 50%;
@@ -33,8 +33,33 @@
     opacity: 0;
     transition: opacity 0.3s;
   }
-  
+
   .editar-imagen:hover .editar-texto {
     opacity: 1; /* Mostrar el texto al poner el cursor encima */
   }
-  
+
+  .product-quantity {
+    display: flex;
+    align-items: center;
+}
+
+.increase-quantity,
+.decrease-quantity {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;
+    font-size: 1rem;
+}
+
+.quantity {
+    margin: 0 10px;
+    display: inline-block;
+}
+
+
+.elongated-minus {
+    transform: scaleX(2.5);  /* Estira el símbolo "-" horizontalmente */
+    display: inline-block;   /* Necesario para aplicar la transformación */
+}
+

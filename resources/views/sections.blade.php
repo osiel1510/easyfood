@@ -42,14 +42,13 @@ EasyFood
                         </tr>
                         @foreach($secciones as $seccion)
                             <tr>
-                                <td class="pl-5 pr-5 text-center">{{$seccion->nombre}}</td>
+                                <td class="pl-5 pr-5 text-center" data-id="{{$seccion->id}}">{{$seccion->nombre}}</td>
                                 <td class="pl-5 pr-5 text-center">
                                     @if($seccion->disponibilidad == 1)
                                         Si
                                     @else
                                         No
                                     @endif
-
                                 </td>
                                 <td class="pl-5 pr-5"><a class="text-center text-blue-700" href="">Editar</a></td>
                                 <td class="pl-5 pr-5">
@@ -72,6 +71,21 @@ EasyFood
     </div>
 
 </div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    // Selecciona todas las celdas con el atributo data-id
+    const celdasNombre = document.querySelectorAll('td[data-id]');
+
+    // Itera sobre las celdas y establece el id según el atributo data-id
+    celdasNombre.forEach(celda => {
+        const seccionId = celda.getAttribute('data-id');
+        celda.id = 'nombre' + seccionId;
+    });
+});
+
+</script>
 
 </div>
 
