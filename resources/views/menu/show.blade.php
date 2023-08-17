@@ -169,19 +169,31 @@
 
 <script>
 
+function updateTotal() {
+    var total = 0;
+    var cart = localStorage.getItem('cart');
+    cart = cart ? JSON.parse(cart) : []; // Cambia '{}' a '[]'
+    for (var i = 0; i < cart.length; i++) { // Cambia el bucle for...in a un bucle for
+        total += cart[i].quantity * cart[i].price;
+    }
+
+    // Actualiza el total del carrito en la vista
+    $(".total").text('Total: $' + total.toFixed(2) + ' | Ver carrito'); // Asegúrate de formatear el total correctamente
+}
+
+updateTotal();
+
 var isProductViewed = false;
 
 $(document).ready(function() {
 
-// esconde la barra lateral y el overlay cuando se hace clic fuera de la barra lateral
-$('#overlay').on('click', function(event) {
-    event.stopPropagation();
-    $(this).hide();
-    $('#sidebar').addClass('hidden');
-    $('#cart-container').addClass('hidden');
-});
-
-
+    // esconde la barra lateral y el overlay cuando se hace clic fuera de la barra lateral
+    $('#overlay').on('click', function(event) {
+        event.stopPropagation();
+        $(this).hide();
+        $('#sidebar').addClass('hidden');
+        $('#cart-container').addClass('hidden');
+    });
 
     $('#sidebar').on('click', '.increase', function() {
         var id = $(this).parent().data('id');
@@ -207,9 +219,17 @@ $('#overlay').on('click', function(event) {
     $('#sidebar').on('click', '.remove', function() {
         var id = $(this).parent().data('id');
         var cart = JSON.parse(localStorage.getItem('cart'));
-        delete cart[id];
-        localStorage.setItem('cart', JSON.stringify(cart));
-        $(this).parent().remove();
+
+        // Buscar el producto en el carrito por su ID
+        var productIndex = id;
+
+        if (productIndex !== -1) {
+            cart.splice(productIndex, 1); // Eliminar el producto del array
+            localStorage.setItem('cart', JSON.stringify(cart));
+            $(this).parent().remove();
+        }
+
+        updateTotal();
     });
 
 
@@ -251,59 +271,50 @@ $('#overlay').on('click', function(event) {
         $('#overlay').hide();
     });
 
-
 });
 
 });
 
 function addToCart(product_id, quantity) {
-    // primero, intentamos recuperar el carrito del local storage
     var cart = localStorage.getItem('cart');
+    cart = cart ? JSON.parse(cart) : [];
 
-    // si el carrito ya existe, lo parseamos a un objeto, de lo contrario inicializamos un objeto vacío
-    cart = cart ? JSON.parse(cart) : {};
-
-    // luego obtenemos el precio y el nombre del producto actual
     var productPrice = parseFloat($('#product-details-' + product_id).find('.product-price').text().replace('$', ''));
     var productName = $('#product-details-' + product_id).find('h3').text();
 
-    // si el producto ya está en el carrito, simplemente incrementamos la cantidad, de lo contrario agregamos el producto al carrito
-    if (cart[product_id]) {
-        cart[product_id].quantity += parseInt(quantity);
-    } else {
-        cart[product_id] = {
-            id: product_id,
-            quantity: parseInt(quantity),
-            price: productPrice,
-            name: productName
-        };
-    }
+    var newProduct = {
+        id: product_id,
+        quantity: parseInt(quantity),
+        price: productPrice,
+        name: productName
+    };
 
-    // guardamos el carrito actualizado de nuevo en el local storage
+    cart.push(newProduct);
     localStorage.setItem('cart', JSON.stringify(cart));
 
-    // calculamos el total del carrito
     var total = 0;
-    for (var product in cart) {
-        total += cart[product].quantity * cart[product].price;
-    }
+    var cartItemHTML = '';
 
-    // genera el HTML para el producto en el carrito
-    var cartItemHTML = '<div class="cart-item" data-id="' + product_id + '">' +
-                        '<h3>' + cart[product_id].name + '</h3>' +
-                        '<p>Cantidad: <span class="quantity">' + cart[product_id].quantity + '</span></p>' +
-                        '<p>Precio: $<span class="price">' + cart[product_id].price.toFixed(2) + '</span></p>' +
+    for (var i = 0; i < cart.length; i++) {
+        console.log(cart[i]);
+        var product = cart[i];
+        total += product.quantity * product.price;
+
+        cartItemHTML += '<div class="cart-item" data-id="' + i + '">' +
+                        '<h3>' + product.name + '</h3>' +
+                        '<p>Cantidad: <span class="quantity">' + product.quantity + '</span></p>' +
+                        '<p>Precio: $<span class="price">' + product.price.toFixed(2) + '</span></p>' +
                         '<button class="increase">+</button>' +
                         '<button class="decrease">-</button>' +
                         '<button class="remove">Eliminar</button>' +
-                       '</div>';
+                    '</div>';
+    }
 
-    // inserta el producto en el carrito (en la barra lateral)
     $('#sidebar').html(cartItemHTML);
 
-    // devuelve el total del carrito
     return total;
 }
+
 
 
 </script>
@@ -313,19 +324,23 @@ function addToCart(product_id, quantity) {
 // Función para mostrar el carrito
 function showCart() {
     var cart = localStorage.getItem('cart');
-    cart = cart ? JSON.parse(cart) : {};
+    cart = cart ? JSON.parse(cart) : [];
     var cartContainer = $('#cart-container');
     cartContainer.empty();  // Limpiar el contenido existente
+
+    var total = 0;  // Inicializar la variable para el total
 
     // Iterar sobre los productos en el carrito y generar HTML
     cartContainer.append(`
     <h2 class="mt-5 text-xl text-blue-800 font-bold">Carrito</h2>
     `);
 
-    for (var productId in cart) {
-        var product = cart[productId];
-        var productHTML = `
-            <div style="width: 85%; margin-top: 10px;" class="text-white p-5 rounded-xl cart-item cart-product bg-blue-800" data-id="${productId}">
+    for (var i = 0; i < cart.length; i++) {
+        var product = cart[i];
+        total += product.quantity * product.price;
+
+        var cartItemHTML = `
+        <div style="width: 85%; margin-top: 10px;" class="text-white p-5 rounded-xl cart-item cart-product bg-blue-800" data-id="${i}">
                 <p class="product-name">${product.quantity} x ${product.name} $${product.price * product.quantity}</p>
                 <div class="product-quantity">
                     <span class="product-price"></span>
@@ -335,19 +350,21 @@ function showCart() {
                     <span class="text-blue-800 quantity">${product.quantity}</span>
                 </div>
             </div>
+
         `;
-        cartContainer.append(productHTML);
+        cartContainer.append(cartItemHTML);
     }
 
+    // Mostrar el total del carrito
     cartContainer.append(`
-
-
+        <h4 class="mt-3 font-semibold">Total: $${total.toFixed(2)}</h4>
     `);
 
     // Mostrar el div del carrito
     cartContainer.removeClass('hidden');
     $('#overlay').show();
 }
+
 
 // Evento para el botón "Ver carrito"
 $('.view-cart').on('click', function(e) {
@@ -360,37 +377,32 @@ $('#cart-container').on('click', '.remove-from-cart', function() {
     var productElement = $(this).closest('.cart-product');
     var productId = productElement.data('id');
     var cart = JSON.parse(localStorage.getItem('cart'));
-    delete cart[productId];
-    localStorage.setItem('cart', JSON.stringify(cart));
-    productElement.remove();
+
+    // Buscar el producto en el carrito por su ID
+    var productIndex = productId;
+
+    if (productIndex !== -1) {
+        cart.splice(productIndex, 1); // Eliminar el producto del array
+        localStorage.setItem('cart', JSON.stringify(cart));
+        $(this).parent().remove();
+    }
     updateTotal();
-    // Actualiza el total del carrito si es necesario
+    showCart();
 });
 
 // Función para actualizar la cantidad de un producto en el carrito
 function updateCartItemQuantity(productId, delta) {
     var cart = JSON.parse(localStorage.getItem('cart'));
+    productIndex = productId;
 
-    if (!cart[productId]) return;
+    if (productIndex === -1) return;
 
-    cart[productId].quantity += delta;
-    if (cart[productId].quantity <= 0) {
-        delete cart[productId];
+    cart[productIndex].quantity += delta;
+    if (cart[productIndex].quantity <= 0) {
+        cart.splice(productIndex, 1); // Elimina el producto del array
     }
 
     localStorage.setItem('cart', JSON.stringify(cart));
-}
-
-function updateTotal() {
-    var total = 0;
-    var cart = localStorage.getItem('cart');
-    cart = cart ? JSON.parse(cart) : {}; // <--- Asegúrate de hacer el parse aquí
-    for (var product in cart) {
-        total += cart[product].quantity * cart[product].price;
-    }
-
-    // Actualiza el total del carrito en la vista
-    $(".total").text('Total: $' + total + ' | Ver carrito');
 }
 
 
