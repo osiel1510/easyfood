@@ -1,5 +1,6 @@
 
 @extends('layouts.footer')
+@extends('modals.editarSection')
 @extends('modals.section')
 @extends('modals.editarRestaurante')
 @extends('modals.imagenRestaurante')
@@ -42,15 +43,15 @@ EasyFood
                         </tr>
                         @foreach($secciones as $seccion)
                             <tr>
-                                <td class="pl-5 pr-5 text-center" data-id="{{$seccion->id}}">{{$seccion->nombre}}</td>
-                                <td class="pl-5 pr-5 text-center">
+                                <td class="pl-5 pr-5 text-center nombre" data-id="{{$seccion->id}}">{{$seccion->nombre}}</td>
+                                <td class="pl-5 pr-5 text-center disponibilidad">
                                     @if($seccion->disponibilidad == 1)
                                         Si
                                     @else
                                         No
                                     @endif
                                 </td>
-                                <td class="pl-5 pr-5"><a class="text-center text-blue-700" href="">Editar</a></td>
+                                <td class="pl-5 pr-5"><button class="text-center text-blue-700 editar">Editar</button></td>
                                 <td class="pl-5 pr-5">
                                     <form action="{{ route('secciones.destroy', $seccion->id) }}" method="POST">
                                         @csrf

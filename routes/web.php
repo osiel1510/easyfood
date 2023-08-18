@@ -40,9 +40,9 @@ Route::get('/secciones', [SeccionController::class,'index'])->name('secciones.in
 
 Route::post('/secciones', [SeccionController::class,'store'])->name('secciones.store');
 
-Route::post('/secciones/editar/{id}', 'NombreDeTuControlador@update')->name('secciones.update');
-
 Route::delete('/secciones/{seccion}', [SeccionController::class,'destroy'])->name('secciones.destroy');
+
+Route::put('/sections/{id}', [SeccionController::class, 'update'])->name('secciones.update');
 
 Route::post('/imagenes', [ImageController::class,'store'])->name('imagenes.store');
 
@@ -74,5 +74,6 @@ Route::delete('/section-options/{section_option}', [SectionOptionController::cla
 Route::get('/options', [OptionController::class, 'index'])->name('options.index');
 Route::post('/options', [OptionController::class, 'store'])->name('options.store');
 Route::delete('/options/{option}', [OptionController::class, 'destroy'])->name('options.destroy');
+
 
 Route::get('menu/{restaurant}', [MenuController::class, 'showMenu'])->name('menu.show');
