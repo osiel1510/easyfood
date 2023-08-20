@@ -41,7 +41,7 @@ class SeccionController extends Controller
         $post->save();
 
         // Redireccionar o realizar alguna acción adicional si es necesario
-        return redirect()->route('post.index');
+        return redirect()->route('secciones.index');
 
     }
 
@@ -62,7 +62,7 @@ class SeccionController extends Controller
         $section->save();
 
         // Redireccionar con un mensaje de éxito
-        return redirect()->route('post.index')->with('success', 'Sección actualizada exitosamente');
+        return redirect()->route('secciones.index')->with('success', 'Sección actualizada exitosamente');
     }
 
 

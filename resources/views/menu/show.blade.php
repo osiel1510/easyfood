@@ -59,16 +59,14 @@
 
     <div style="height: 100%; width: 80%;" class="flex justify-end" >
         <div style="width: 73%;" class="mt-5">
-
-
             @foreach($restaurant->sections as $section)
                 <p class="text-start font-bold text-xl text-blue-900">{{ $section->nombre }}</p>
                 <div style="width: 58vw; height: 0.5vh;" class="mt-1 bg-blue-800"></div>
-                <div style="width: 100%;" class="flex mt-3">
+                <div style="width: 100%;" class="flex mt-3 flex-wrap">
                 @foreach($section->products as $product)
-                    <div id="product-{{ $product->id }}" style="max-width: 50%; width: 50%; height: 20vh" class="cursor-pointer product-item hover:bg-gray-200 flex items-center">
-                        <img style="width: 32%;" class="ml-1 rounded-xl" src="{{ asset('uploads/' . $product->imagen) }}">
-                        <div style="max-height: 80%; max-width: 50%;" class="ml-2 flex flex-col items-start justify-start">
+                    <div id="product-{{ $product->id }}" style="max-width: 30%; width: 50%; height: 15vh" class="cursor-pointer product-item hover:bg-gray-200 flex items-center">
+                        <img style="width: 30%;" class="ml-1 rounded-xl" src="{{ asset('uploads/' . $product->imagen) }}">
+                        <div style="max-height: 50%; max-width: 50%;" class="ml-2 flex flex-col items-start justify-start">
                             <h3 class="text-blue-950 text-lg font-bold">{{ $product->nombre }}</h3>
                             <p style="max-height:70px; max-width: 100%; text-overflow: ellipsis; overflow:hidden;" class="text-blue-950 text-xs">{{ $product->descripcion }}</p>
                             <p class="text-blue-950 font-bold text-xl">${{ $product->precio }}</p>

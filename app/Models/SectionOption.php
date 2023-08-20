@@ -24,4 +24,10 @@ class SectionOption extends Model
         return $this->belongsTo(Restaurant::class);
     }
 
+    public function products()
+{
+    return $this->belongsToMany(Product::class, 'product_section_option', 'section_option_id', 'product_id');
+}
+
+
 }

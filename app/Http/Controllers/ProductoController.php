@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Product;
 use App\Models\Horario;
 use App\Models\Restaurant;
+use App\Models\SectionOption;
 use App\Models\User;
 use App\Models\Section;
 use Carbon\Carbon;
@@ -82,12 +83,23 @@ class ProductoController extends Controller
 
         $sections = Section::where('restaurant_id',$restaurant->id)->get();
 
+        $sectionOptions = SectionOption::whereDoesntHave('products', function ($query) use ($producto) {
+            $query->where('product_id', $producto->id);
+        })->get();
+
+        $sectionOptionsProducto = SectionOption::whereHas('products', function ($query) use ($producto) {
+            $query->where('product_id', $producto->id);
+        })->get();
+
+
         return view("products.show",[
             'user'=>$user,
             'restaurant'=>$restaurant,
             'horarios'=>$horarios,
             'product'=>$producto,
             'sections'=>$sections,
+            'sectionOptions'=>$sectionOptions,
+            'sectionOptionsProducto'=>$sectionOptionsProducto,
         ]);
     }
 
@@ -96,6 +108,21 @@ class ProductoController extends Controller
         $product->delete();
 
         return redirect()->route('products.index')->with('success', 'Producto eliminado correctamente');
+    }
+
+    public function addSectionOptionToProduct(Request $request, Product $product)
+    {
+        $product->sectionOptions()->attach($request->input('section_option_id'));
+
+        return redirect()->route('products.show', $product->id)->with('success', 'Sección agregada al producto con éxito.');
+    }
+
+    public function removeSectionOption(Product $product, SectionOption $sectionOption)
+    {
+        // Elimina la relación entre el producto y la sección
+        $product->sectionOptions()->detach($sectionOption);
+
+        return redirect()->route('products.show', $product->id)->with('success', 'Sección eliminada del producto con éxito.');
     }
 }
 

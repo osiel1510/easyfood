@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Product extends Model
 {
     protected $fillable = [
-        'section_options_id',
         'sections_id',
         'nombre',
         'disponibilidad',
@@ -22,10 +21,11 @@ class Product extends Model
         return $this->belongsTo(Section::class, 'sections_id');
     }
 
-    public function sectionOption()
-    {
-        return $this->belongsTo(Section_Option::class, 'section_options_id');
-    }
+    public function sectionOptions()
+{
+    return $this->belongsToMany(SectionOption::class, 'product_section_option', 'product_id', 'section_option_id');
+}
+
 
 }
 
