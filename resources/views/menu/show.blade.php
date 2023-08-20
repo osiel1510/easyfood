@@ -31,8 +31,8 @@
   flex-direction: column;
   align-items: center;
   position: fixed;
+  width: 500px;
   right: 0;
-  width: 28%;
   height: 100%;
   top: 0;
   background-color: white;
@@ -64,9 +64,9 @@
                 <div style="width: 58vw; height: 0.5vh;" class="mt-1 bg-blue-800"></div>
                 <div style="width: 100%;" class="flex mt-3 flex-wrap">
                 @foreach($section->products as $product)
-                    <div id="product-{{ $product->id }}" style="max-width: 30%; width: 50%; height: 15vh" class="cursor-pointer product-item hover:bg-gray-200 flex items-center">
+                    <div id="product-{{ $product->id }}" style="max-width: 300px; width: 50%; height: 15vh" class="cursor-pointer product-item hover:bg-gray-200 flex items-center">
                         <img style="width: 30%;" class="ml-1 rounded-xl" src="{{ asset('uploads/' . $product->imagen) }}">
-                        <div style="max-height: 50%; max-width: 50%;" class="ml-2 flex flex-col items-start justify-start">
+                        <div style="max-height: 300px; max-width: 300px;" class="ml-2 flex flex-col items-start justify-start">
                             <h3 class="text-blue-950 text-lg font-bold">{{ $product->nombre }}</h3>
                             <p style="max-height:70px; max-width: 100%; text-overflow: ellipsis; overflow:hidden;" class="text-blue-950 text-xs">{{ $product->descripcion }}</p>
                             <p class="text-blue-950 font-bold text-xl">${{ $product->precio }}</p>
@@ -115,7 +115,7 @@
                                 </div>
                             </div>
 
-                            <button id="add-to-cart-btn-{{$product->id}}" data-product-id="{{$product->id}}" data-product-price="{{$product->precio}}" style="width: 80%" class="add-to-cart hover:bg-blue-900 text-white bg-blue-800 mt-2 pt-1 pb-1 pl-3 pr-3 self-center flex justify-center items-center border-blue-800 border-2 rounded-lg">
+                            <button id="add-to-cart-btn-{{$product->id}}" data-product-id="{{$product->id}}" data-product-price="{{$product->precio}}" style="width: 80%" class="mb-5 add-to-cart hover:bg-blue-900 text-white bg-blue-800 mt-2 pt-1 pb-1 pl-3 pr-3 self-center flex justify-center items-center border-blue-800 border-2 rounded-lg">
                                 <img class="w-6 h-6"  src="{{ asset('images/marketcar.svg') }}">
                                 <p id="cart-amount" class="cart-amount ml-2 text-lg ">Añadir al carrito: ${{$product->precio}}</p>
                             </button>
@@ -244,7 +244,7 @@ $(document).ready(function() {
 
         // obtén el precio del producto actual
         var precioTotal = parseFloat($('#sidebar').find('#cart-amount').text().replace('Añadir al carrito: $', ''));
-        var cantidadElemento = $('.cantidadProducto').eq(1);
+        var cantidadElemento = $('.cantidadProducto').last();
         var cantidad = parseInt(cantidadElemento.text());
 
         // calcula el monto calculado (cantidad * precio del producto)
@@ -258,7 +258,7 @@ $(document).ready(function() {
 
         // obtén el precio del producto actual
         var precioTotal = parseFloat($('#sidebar').find('#cart-amount').text().replace('Añadir al carrito: $', ''));
-        var cantidadElemento = $('.cantidadProducto').eq(1);
+        var cantidadElemento = $('.cantidadProducto').last();
         var cantidad = parseInt(cantidadElemento.text());
 
         if(cantidad >= 2){
@@ -283,14 +283,14 @@ $(document).ready(function() {
 
     if (cantidadOptionElements.length >= 2) {
 
-        var cantidadElemento = $('.cantidadProducto').eq(1);
+        var cantidadElemento = $('.cantidadProducto').last();
         var cantidadProducto = parseInt(cantidadElemento.text());
 
-        var cartAmountElement = $('.cart-amount').eq(1);
+        var cartAmountElement = $('.cart-amount').last();
         var cartAmount = parseFloat(cartAmountElement.text().replace('Añadir al carrito: $',''));
         cartAmountElement.text('Añadir al carrito: $' + (cartAmount + (precio*cantidadProducto)));
 
-        var cantidadOptionElement = cantidadOptionElements.eq(1); // Obtiene el segundo elemento
+        var cantidadOptionElement = cantidadOptionElements.last(); // Obtiene el segundo elemento
         var cantidadActual = parseInt(cantidadOptionElement.text());
         cantidadActual += 1;
         cantidadOptionElement.text(cantidadActual);
@@ -309,15 +309,15 @@ $('#sidebar').on('click', '.decreaseOption', function() {
 
     if (cantidadOptionElements.length >= 2) {
 
-        var cantidadOptionElement = cantidadOptionElements.eq(1); // Obtiene el segundo elemento
+        var cantidadOptionElement = cantidadOptionElements.last(); // Obtiene el segundo elemento
         var cantidadActual = parseInt(cantidadOptionElement.text());
 
         if(cantidadActual > 0){
-            var cantidadElemento = $('.cantidadProducto').eq(1);
+            var cantidadElemento = $('.cantidadProducto').last();
             var cantidadProducto = parseInt(cantidadElemento.text());
 
             cantidadActual -= 1;
-            var cartAmountElement = $('.cart-amount').eq(1);
+            var cartAmountElement = $('.cart-amount').last();
             var cartAmount = parseFloat(cartAmountElement.text().replace('Añadir al carrito: $',''));
             cartAmountElement.text('Añadir al carrito: $' + (cartAmount - (precio*cantidadProducto)));
             cantidadOptionElement.text(cantidadActual);
@@ -513,6 +513,31 @@ function addToCart(product_id, quantity, selectedOptions) {
 <script>
 
 // Función para mostrar el carrito
+function showForm() {
+    console.log('a');
+    var cartContainer = $('#cart-container');
+    cartContainer.empty();  // Limpiar el contenido existente
+
+    // Mostrar el total del carrito
+    cartContainer.append(`
+
+    <div style="width: 80%;" class="mt-5 flex flex-col p-5 bg-gray-100 items-center">
+        <h2 class="text-blue-950 font-bold text-lg">Datos personales</h2>
+        <div style="width: 80%;" class="mt-2 flex justify-between">
+            <p class="text-blue-950">{{$option->nombre}}</p>
+        </div>
+    </div>
+
+
+    `);
+
+    // Mostrar el div del carrito
+    cartContainer.removeClass('hidden');
+    $('#overlay').show();
+}
+
+
+// Función para mostrar el carrito
 function showCart() {
     var cart = localStorage.getItem('cart');
     cart = cart ? JSON.parse(cart) : [];
@@ -527,25 +552,36 @@ function showCart() {
     `);
 
     for (var i = 0; i < cart.length; i++) {
-        var product = cart[i];
-        total += product.quantity * product.price;
+    var product = cart[i];
+    total += product.quantity * product.price;
+    totalProducto = product.quantity * product.price;
 
-        var cartItemHTML = `
+    product.selectedOptions.forEach(option => {
+        totalProducto += option.price * option.quantity * product.quantity;
+    });
+
+    var cartItemHTML = `
         <div style="width: 85%; margin-top: 10px;" class="text-white p-5 rounded-xl cart-item cart-product bg-blue-800" data-id="${i}">
-                <p class="product-name">${product.quantity} x ${product.name} $${product.price * product.quantity}</p>
-                <div class="product-quantity">
-                    <span class="product-price"></span>
-                    <button class="increase-quantity">+</button>
-                    <button class="ml-5 decrease-quantity elongated-minus">-</button>
-                    <button class="remove-from-cart ml-5"><i class="fas fa-trash-alt"></i></button>
-                    <span class="text-blue-800 quantity">${product.quantity}</span>
-                </div>
+            <p class="product-name">${product.quantity} x ${product.name} $${product.price * product.quantity}</p>
+            <div class="selected-options">
+                ${product.selectedOptions.map(option => `
+                    <p class="ml-3">${option.quantity} x ${option.option}${option.price !== 0 ? `: $${option.price}` : ''}</p>
+                `).join('')}
             </div>
+            <p class="ml-3">$${totalProducto}</p>
 
-        `;
-        cartContainer.append(cartItemHTML);
-    }
+            <div class="product-quantity">
+                <span class="product-price"></span>
+                <button class="increase-quantity">+</button>
+                <button class="ml-5 decrease-quantity elongated-minus">-</button>
+                <button class="remove-from-cart ml-5"><i class="fas fa-trash-alt"></i></button>
+                <span class="text-blue-800 quantity">${product.quantity}</span>
+            </div>
+        </div>
+    `;
 
+    cartContainer.append(cartItemHTML);
+}
     var total = 0;
 
     for (var i = 0; i < cart.length; i++) {
@@ -575,7 +611,11 @@ function showCart() {
 
     // Mostrar el total del carrito
     cartContainer.append(`
-        <h4 class="mt-3 font-semibold">Total: $${total.toFixed(2)}</h4>
+
+    <button style="width: 450px;" class="continuar-pedido hover:bg-blue-900 text-white bg-blue-800 mt-2 pt-1 pb-1 pl-3 pr-3 self-center flex justify-center items-center border-blue-800 border-2 rounded-lg">
+        <img class="w-6 h-6"  src="{{ asset('images/marketcar.svg') }}">
+        <p class="ml-2 text-lg total">Total: $${total.toFixed(2)} | Continuar</p>
+    </button>
     `);
 
     // Mostrar el div del carrito
@@ -588,6 +628,10 @@ function showCart() {
 $('.view-cart').on('click', function(e) {
     e.preventDefault();
     showCart();
+});
+
+$(document).on('click', '.continuar-pedido', function() {
+    showForm();
 });
 
 // Evento para el botón "Eliminar" en el carrito
