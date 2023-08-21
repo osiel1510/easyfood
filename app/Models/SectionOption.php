@@ -19,6 +19,12 @@ class SectionOption extends Model
         'disponibilidad',
     ];
 
+    public function options()
+{
+    return $this->hasMany(Option::class, 'section_options_id');
+}
+
+
     public function restaurant()
     {
         return $this->belongsTo(Restaurant::class);

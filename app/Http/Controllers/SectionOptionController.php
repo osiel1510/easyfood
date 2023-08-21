@@ -53,13 +53,13 @@ class SectionOptionController extends Controller
         $sectionOption = new SectionOption();
         $sectionOption->restaurant_id = $request->input('restaurant_id');
         $sectionOption->nombre = $request->input('nombre');
-        $sectionOption->maximo = $request->input('maximo');
-        $sectionOption->minimo = $request->input('minimo');
         $sectionOption->disponibilidad = $request->input('disponibilidad');
+        $sectionOption->obligatorio = $request->input('obligatorio'); // Agrega esta línea para el campo "obligatorio"
         $sectionOption->save();
 
         return redirect()->route('section_options.index')->with('success', 'Section Option creado correctamente');
     }
+
 
     public function destroy(SectionOption $sectionOption)
     {

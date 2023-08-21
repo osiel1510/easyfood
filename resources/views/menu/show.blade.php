@@ -81,13 +81,43 @@
 
                             <p class="text-blue-950 font-bold text-xl product-price">${{ $product->precio }}</p>
 
-                            <input id="quantity-input" class="mt-2 mb-2 " type="number" min="1" value="1">
+
+                            @foreach ($product->sectionOptions as $sectionOption)
+                                <div style="width: 80%;" class="mt-5 flex flex-col p-5 bg-gray-100 items-center">
+                                    <h2 class="text-blue-950 font-bold text-lg">{{ $sectionOption->nombre }}</h2>
+
+                                        @foreach($sectionOption->options as $option)
+                                        <div style="width: 80%;" class="mt-2 flex justify-between">
+
+                                            <p class="text-blue-950">{{$option->nombre}}</p>
+
+                                            <div>
+
+                                                @if($option->precio != 0)
+                                                    <p>${{$option->precio}}</p>
+
+                                                    <button class="increase">+</button>
+                                                    <p class="cantidad" >0</p>
+                                                    <button class="decrease">-</button>
+                                                @endif
+
+                                                <input type="radio" id="{{$option->nombre}}" name="{{$sectionOption->nombre}}" value="{{$option->nombre}}">
+                                            </div>
+
+                                        </div>
+                                        @endforeach
+
+                                </div>
+                            @endforeach
+
+                            <input id="quantity-input" class="mt-5 mb-2 border-blue-900 border rounded pt-1 pb-1 pl-2 border focus:outline-none" type="number" min="1" value="1">
 
                             <button id="add-to-cart-btn" href=""  style="width: 80%" class="add-to-cart hover:bg-blue-900 text-white bg-blue-800 mt-2 pt-1 pb-1 pl-3 pr-3 self-center flex justify-center items-center border-blue-800 border-2 rounded-lg">
                                 <img class="w-6 h-6"  src="{{ asset('images/marketcar.svg') }}">
                                 <p id="cart-amount" class="ml-2 text-lg ">Añadir al carrito</p>
                             </button>
                         </div>
+
                     </div>
                 @endforeach
 

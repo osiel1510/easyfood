@@ -32,41 +32,43 @@ EasyFood
 
                 @else
 
-                    <table>
-                        <tr class="bg-blue-700 text-white">
-                            <th>Nombre</th>
-                            <th>Disponible</th>
-                            <th>Minimo</th>
-                            <th>Maximo</th>
-                            <th></th>
-                            <th></th>
+                <table>
+                    <tr class="bg-blue-700 text-white">
+                        <th>Nombre</th>
+                        <th>Disponible</th>
+                        <th>Obligatorio</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    @foreach($sectionOptions as $sectionOption)
+                        <tr>
+                            <td class="pl-5 pr-5 text-center">{{ $sectionOption->nombre }}</td>
+                            <td class="pl-5 pr-5 text-center">
+                                @if($sectionOption->disponibilidad == 1)
+                                    Si
+                                @else
+                                    No
+                                @endif
+                            </td>
+                            <td class="pl-5 pr-5 text-center">
+                                @if($sectionOption->obligatorio)
+                                    Sí
+                                @else
+                                    No
+                                @endif
+                            </td>
+                            <td class="pl-5 pr-5"><a class="text-center text-blue-700">Editar</a></td>
+                            <td class="pl-5 pr-5">
+                                <form action="{{ route('section_options.destroy', $sectionOption->id) }}" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="text-center text-blue-700" type="submit">Eliminar</button>
+                                </form>
+                            </td>
                         </tr>
-                        @foreach($sectionOptions as $sectionOption)
-                            <tr>
-                                <td class="pl-5 pr-5 text-center">{{ $sectionOption->nombre }}</td>
-                                <td class="pl-5 pr-5 text-center">
-                                    @if($sectionOption->disponibilidad == 1)
-                                        Si
-                                    @else
-                                        No
-                                    @endif
+                    @endforeach
+                </table>
 
-                                </td>
-                                <td class="pl-5 pr-5 text-center">{{ $sectionOption->minimo }}</td>
-                                <td class="pl-5 pr-5 text-center">{{ $sectionOption->maximo }}</td>
-
-                                <td class="pl-5 pr-5"><a class="text-center text-blue-700">Editar</a></td>
-                                <td class="pl-5 pr-5">
-                                    <form action="{{ route('section_options.destroy', $sectionOption->id) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="text-center text-blue-700" type="submit">Eliminar</button>
-                                    </form>
-                                </td>
-
-                            </tr>
-                        @endforeach
-                    </table>
 
                 @endif
 
