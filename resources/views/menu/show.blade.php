@@ -81,43 +81,45 @@
 
                             <p class="text-blue-950 font-bold text-xl product-price">${{ $product->precio }}</p>
 
-
                             @foreach ($product->sectionOptions as $sectionOption)
                                 <div style="width: 80%;" class="mt-5 flex flex-col p-5 bg-gray-100 items-center">
                                     <h2 class="text-blue-950 font-bold text-lg">{{ $sectionOption->nombre }}</h2>
 
-                                        @foreach($sectionOption->options as $option)
-                                        <div style="width: 80%;" class="mt-2 flex justify-between">
-
-                                            <p class="text-blue-950">{{$option->nombre}}</p>
-
-                                            <div>
-
-                                                @if($option->precio != 0)
-                                                    <p>${{$option->precio}}</p>
-
-                                                    <button class="increase">+</button>
-                                                    <p class="cantidad" >0</p>
-                                                    <button class="decrease">-</button>
-                                                @endif
-
-                                                <input type="radio" id="{{$option->nombre}}" name="{{$sectionOption->nombre}}" value="{{$option->nombre}}">
-                                            </div>
-
+                                    @foreach($sectionOption->options as $option)
+                                    <div style="width: 80%;" class="mt-2 flex justify-between">
+                                        <p class="text-blue-950">{{$option->nombre}}</p>
+                                        <div style="width: 40%;" class="flex justify-between" id="{{$option->nombre}}">
+                                            @if($sectionOption->obligatorio == false)
+                                                <p class="text-blue-950 precioOption">${{$option->precio}}</p>
+                                                <button class="increaseOption text-white font-bold bg-blue-900 rounded pl-2 pr-2" data-option="{{$option->nombre}}" >+</button>
+                                                <p class="cantidadOption text-blue-950" data-option="{{$option->nombre}}" data-sectionOption="{{$sectionOption->nombre}}">0</p>
+                                                <button class="decreaseOption text-white font-bold bg-blue-900 rounded pl-2 pr-2" data-option="{{$option->nombre}}">-</button>
+                                            @endif
                                         </div>
-                                        @endforeach
-
+                                        @if($sectionOption->obligatorio == true)
+                                            <input type="radio" id="{{$option->nombre}}" name="{{$sectionOption->nombre}}" value="{{$option->nombre}}" @if($loop->first)  checked  @endif>
+                                        @endif
+                                    </div>
+                                    @endforeach
                                 </div>
                             @endforeach
 
-                            <input id="quantity-input" class="mt-5 mb-2 border-blue-900 border rounded pt-1 pb-1 pl-2 border focus:outline-none" type="number" min="1" value="1">
+                            <div style="width: 80%;" class="mt-5 flex flex-col p-5 bg-gray-100 items-center">
+                                <h2 class="text-blue-950 font-bold text-lg">Cantidad</h2>
+                                <div style="width: 80%;" class="mt-2 flex justify-center">
+                                    <div style="width: 40%;" class="flex justify-between">
+                                        <button class="increaseCantidadProducto text-white font-bold bg-blue-900 rounded pl-2 pr-2" data-option="{{$option->nombre}}" >+</button>
+                                        <p class="cantidadProducto text-blue-950">1</p>
+                                        <button class="decreaseCantidadProducto text-white font-bold bg-blue-900 rounded pl-2 pr-2" data-option="{{$option->nombre}}">-</button>
+                                    </div>
+                                </div>
+                            </div>
 
-                            <button id="add-to-cart-btn" href=""  style="width: 80%" class="add-to-cart hover:bg-blue-900 text-white bg-blue-800 mt-2 pt-1 pb-1 pl-3 pr-3 self-center flex justify-center items-center border-blue-800 border-2 rounded-lg">
+                            <button id="add-to-cart-btn-{{$product->id}}" data-product-id="{{$product->id}}" data-product-price="{{$product->precio}}" style="width: 80%" class="add-to-cart hover:bg-blue-900 text-white bg-blue-800 mt-2 pt-1 pb-1 pl-3 pr-3 self-center flex justify-center items-center border-blue-800 border-2 rounded-lg">
                                 <img class="w-6 h-6"  src="{{ asset('images/marketcar.svg') }}">
-                                <p id="cart-amount" class="ml-2 text-lg ">Añadir al carrito</p>
+                                <p id="cart-amount" class="cart-amount ml-2 text-lg ">Añadir al carrito: ${{$product->precio}}</p>
                             </button>
                         </div>
-
                     </div>
                 @endforeach
 
@@ -198,11 +200,34 @@
 <script>
 
 function updateTotal() {
-    var total = 0;
+
     var cart = localStorage.getItem('cart');
     cart = cart ? JSON.parse(cart) : []; // Cambia '{}' a '[]'
-    for (var i = 0; i < cart.length; i++) { // Cambia el bucle for...in a un bucle for
-        total += cart[i].quantity * cart[i].price;
+    var total = 0;
+
+    for (var i = 0; i < cart.length; i++) {
+        var product = cart[i];
+        var productTotal = 0; // Total del producto actual
+
+        // Recorre las opciones seleccionadas en este producto
+        for (var j = 0; j < product.selectedOptions.length; j++) {
+            var option = product.selectedOptions[j];
+
+            // Calcula el costo total de esta opción (precio * cantidad)
+            var optionTotal = option.price * option.quantity;
+
+            // Agrega el costo total de esta opción al costo total del producto
+            productTotal += optionTotal;
+        }
+
+        // Multiplica el costo total del producto por la cantidad del producto
+        productTotal *= product.quantity;
+
+
+        productTotal += (product.price * product.quantity);
+
+        // Agrega el costo total del producto al total del carrito
+        total += productTotal;
     }
 
     // Actualiza el total del carrito en la vista
@@ -214,6 +239,92 @@ updateTotal();
 var isProductViewed = false;
 
 $(document).ready(function() {
+
+    $('#sidebar').on('click', '.increaseCantidadProducto', function() {
+
+        // obtén el precio del producto actual
+        var precioTotal = parseFloat($('#sidebar').find('#cart-amount').text().replace('Añadir al carrito: $', ''));
+        var cantidadElemento = $('.cantidadProducto').eq(1);
+        var cantidad = parseInt(cantidadElemento.text());
+
+        // calcula el monto calculado (cantidad * precio del producto)
+        cantidadElemento.text((cantidad+1));
+
+        // actualiza el monto calculado en el botón de añadir al carrito
+        $('#sidebar').find('#cart-amount').text('Añadir al carrito: $' + ((precioTotal/cantidad)*(cantidad+1)).toFixed(2));
+    });
+
+    $('#sidebar').on('click', '.decreaseCantidadProducto', function() {
+
+        // obtén el precio del producto actual
+        var precioTotal = parseFloat($('#sidebar').find('#cart-amount').text().replace('Añadir al carrito: $', ''));
+        var cantidadElemento = $('.cantidadProducto').eq(1);
+        var cantidad = parseInt(cantidadElemento.text());
+
+        if(cantidad >= 2){
+            // calcula el monto calculado (cantidad * precio del producto)
+            cantidadElemento.text((cantidad-1));
+
+            // actualiza el monto calculado en el botón de añadir al carrito
+            $('#sidebar').find('#cart-amount').text('Añadir al carrito: $' + ((precioTotal/cantidad)*(cantidad-1)).toFixed(2));
+
+        }
+
+    });
+
+
+    $('#sidebar').on('click', '.increaseOption', function() {
+    var optionName = $(this).data('option');
+    var cantidadOptionElements = $('.cantidadOption[data-option="' + optionName + '"]');
+
+    var commonParent = $(this).closest('#' + optionName);
+    var precioOptionElement = commonParent.find('.precioOption');
+    var precio = parseFloat(precioOptionElement.text().replace('$',''));
+
+    if (cantidadOptionElements.length >= 2) {
+
+        var cantidadElemento = $('.cantidadProducto').eq(1);
+        var cantidadProducto = parseInt(cantidadElemento.text());
+
+        var cartAmountElement = $('.cart-amount').eq(1);
+        var cartAmount = parseFloat(cartAmountElement.text().replace('Añadir al carrito: $',''));
+        cartAmountElement.text('Añadir al carrito: $' + (cartAmount + (precio*cantidadProducto)));
+
+        var cantidadOptionElement = cantidadOptionElements.eq(1); // Obtiene el segundo elemento
+        var cantidadActual = parseInt(cantidadOptionElement.text());
+        cantidadActual += 1;
+        cantidadOptionElement.text(cantidadActual);
+    }
+
+});
+
+// Delegación de eventos para decreaseOption
+$('#sidebar').on('click', '.decreaseOption', function() {
+    var optionName = $(this).data('option');
+    var cantidadOptionElements = $('.cantidadOption[data-option="' + optionName + '"]');
+
+    var commonParent = $(this).closest('#' + optionName);
+    var precioOptionElement = commonParent.find('.precioOption');
+    var precio = parseFloat(precioOptionElement.text().replace('$',''));
+
+    if (cantidadOptionElements.length >= 2) {
+
+        var cantidadOptionElement = cantidadOptionElements.eq(1); // Obtiene el segundo elemento
+        var cantidadActual = parseInt(cantidadOptionElement.text());
+
+        if(cantidadActual > 0){
+            var cantidadElemento = $('.cantidadProducto').eq(1);
+            var cantidadProducto = parseInt(cantidadElemento.text());
+
+            cantidadActual -= 1;
+            var cartAmountElement = $('.cart-amount').eq(1);
+            var cartAmount = parseFloat(cartAmountElement.text().replace('Añadir al carrito: $',''));
+            cartAmountElement.text('Añadir al carrito: $' + (cartAmount - (precio*cantidadProducto)));
+            cantidadOptionElement.text(cantidadActual);
+        }
+    }
+});
+
 
     // esconde la barra lateral y el overlay cuando se hace clic fuera de la barra lateral
     $('#overlay').on('click', function(event) {
@@ -261,23 +372,13 @@ $(document).ready(function() {
     });
 
 
-    $(document).on('input', '#quantity-input', function() {
-        // obtén el precio del producto actual
-        var precioProducto = parseFloat($(this).parent().find('.product-price').text().replace('$', ''));
-
-        // calcula el monto calculado (cantidad * precio del producto)
-        var montoCalculado = precioProducto * parseInt($(this).val());
-
-        // actualiza el monto calculado en el botón de añadir al carrito
-        $(this).parent().find('#cart-amount').text('Añadir al carrito: $' + montoCalculado.toFixed(2));
-    });
-
     $('.product-item').on('click', function() {
     var productDetails = $('#product-details-' + $(this).attr('id').replace('product-', ''));
     var productDetailsCopy = productDetails.clone();
 
     // llena la barra lateral con los detalles del producto y muestra la barra lateral
     $('#sidebar').html(productDetailsCopy.html()).removeClass('hidden');
+
     $('#overlay').show();
 
     isProductViewed = true;
@@ -287,10 +388,61 @@ $(document).ready(function() {
         e.stopPropagation();
 
         var product_id = $('#sidebar').find('.product-details').attr('id').replace('product-details-', '');
-        var quantity = $(this).prev().val();
+        var quantity = parseInt($('#sidebar').find('.cantidadProducto').text());
+
+        // Crea un objeto para almacenar las sectionOptions y options seleccionadas
+        var selectedOptions = [];
+
+        // Dentro de tu bucle para recopilar selecciones
+        $('#sidebar').find('input[type="radio"]:checked').each(function() {
+            var sectionOptionName = $(this).attr('name');
+            var optionName = $(this).val();
+            var quantity = 1;
+            var price = 0;
+
+            // Crear un objeto JSON con los datos
+            var selectedOption = {
+                sectionOption: sectionOptionName,
+                option: optionName,
+                quantity: quantity,
+                price: price
+            };
+
+            selectedOptions.push(selectedOption);
+        });
+
+        $('#sidebar').find('.cantidadOption').each(function() {
+            var sectionOptionName = $(this).data('sectionoption');
+            var optionName = $(this).data('option');
+            var quantity = parseInt($(this).text());
+
+            // Verifica si la cantidad es mayor que 0 antes de incluirlo
+            if (quantity > 0) {
+                // Encuentra el elemento padre común que contiene tanto cantidadOption como precioOption
+                var commonParent = $(this).closest('#' + optionName);
+
+                // Busca el elemento .precioOption dentro del padre común
+                var precioOptionElement = commonParent.find('.precioOption');
+
+                // Asegúrate de que el elemento .precioOption existe antes de obtener su valor
+                if (precioOptionElement.length > 0) {
+                    var price = parseFloat(precioOptionElement.text().replace('$', ''));
+
+                    // Crear un objeto JSON con los datos
+                    var selectedOption = {
+                        sectionOption: sectionOptionName,
+                        option: optionName,
+                        quantity: quantity,
+                        price: price
+                    };
+
+                    selectedOptions.push(selectedOption);
+                }
+            }
+        });
 
         // Supongamos que addToCart devuelve el total actualizado del carrito
-        var cartTotal = addToCart(product_id, quantity);
+        var cartTotal = addToCart(product_id, quantity, selectedOptions);
 
         // Actualiza el total del carrito en la vista
         $(".total").text('Total: $' + cartTotal + ' | Ver carrito');
@@ -299,51 +451,62 @@ $(document).ready(function() {
         $('#overlay').hide();
     });
 
-});
+
 
 });
 
-function addToCart(product_id, quantity) {
+});
+
+function addToCart(product_id, quantity, selectedOptions) {
     var cart = localStorage.getItem('cart');
     cart = cart ? JSON.parse(cart) : [];
+
+    console.log(selectedOptions);
 
     var productPrice = parseFloat($('#product-details-' + product_id).find('.product-price').text().replace('$', ''));
     var productName = $('#product-details-' + product_id).find('h3').text();
 
+    // Estructura del producto en el carrito
     var newProduct = {
         id: product_id,
         quantity: parseInt(quantity),
         price: productPrice,
-        name: productName
+        name: productName,
+        selectedOptions: selectedOptions
     };
 
     cart.push(newProduct);
     localStorage.setItem('cart', JSON.stringify(cart));
 
     var total = 0;
-    var cartItemHTML = '';
 
     for (var i = 0; i < cart.length; i++) {
-        console.log(cart[i]);
         var product = cart[i];
-        total += product.quantity * product.price;
+        var productTotal = 0; // Total del producto actual
 
-        cartItemHTML += '<div class="cart-item" data-id="' + i + '">' +
-                        '<h3>' + product.name + '</h3>' +
-                        '<p>Cantidad: <span class="quantity">' + product.quantity + '</span></p>' +
-                        '<p>Precio: $<span class="price">' + product.price.toFixed(2) + '</span></p>' +
-                        '<button class="increase">+</button>' +
-                        '<button class="decrease">-</button>' +
-                        '<button class="remove">Eliminar</button>' +
-                    '</div>';
+        // Recorre las opciones seleccionadas en este producto
+        for (var j = 0; j < product.selectedOptions.length; j++) {
+            var option = product.selectedOptions[j];
+
+            // Calcula el costo total de esta opción (precio * cantidad)
+            var optionTotal = option.price * option.quantity;
+
+            // Agrega el costo total de esta opción al costo total del producto
+            productTotal += optionTotal;
+        }
+
+        // Multiplica el costo total del producto por la cantidad del producto
+        productTotal *= product.quantity;
+
+
+        productTotal += (product.price * product.quantity);
+
+        // Agrega el costo total del producto al total del carrito
+        total += productTotal;
     }
-
-    $('#sidebar').html(cartItemHTML);
 
     return total;
 }
-
-
 
 </script>
 
@@ -381,6 +544,33 @@ function showCart() {
 
         `;
         cartContainer.append(cartItemHTML);
+    }
+
+    var total = 0;
+
+    for (var i = 0; i < cart.length; i++) {
+        var product = cart[i];
+        var productTotal = 0; // Total del producto actual
+
+        // Recorre las opciones seleccionadas en este producto
+        for (var j = 0; j < product.selectedOptions.length; j++) {
+            var option = product.selectedOptions[j];
+
+            // Calcula el costo total de esta opción (precio * cantidad)
+            var optionTotal = option.price * option.quantity;
+
+            // Agrega el costo total de esta opción al costo total del producto
+            productTotal += optionTotal;
+        }
+
+        // Multiplica el costo total del producto por la cantidad del producto
+        productTotal *= product.quantity;
+
+
+        productTotal += (product.price * product.quantity);
+
+        // Agrega el costo total del producto al total del carrito
+        total += productTotal;
     }
 
     // Mostrar el total del carrito
@@ -465,12 +655,8 @@ $(document).on('click', '.decrease-quantity, .decrease', function() {
         priceElement.text('$' + (unitPrice * currentQuantity).toFixed(2)); // Actualizar el precio total del producto
         updateTotal();
         showCart();
-
     }
 });
-
-
-
 
 </script>
 

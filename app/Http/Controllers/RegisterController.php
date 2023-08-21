@@ -23,24 +23,24 @@ class RegisterController extends Controller
             'password'=>'required|confirmed|min:6',
             'password_confirmation'=>'',
         ]);
-        
+
         $user = User::create([
             'name'=>$request->name,
             'email'=>$request->email,
             'password'=>Hash::make($request->password),
         ]);
-        
+
         auth()->attempt([
             'email'=>$request->email,
             'password'=>$request->password,
         ]);
-        
+
         $restaurant = new Restaurant;
         $restaurant->nombre = 'restaurante ' . $request->email;
         $restaurant->user_id = $user->id;
         $restaurant->imagen = 'logoMain.png';
         $restaurant->save();
-        
+
         $user->restaurant_id = $restaurant->id;
         $user->save();
 
