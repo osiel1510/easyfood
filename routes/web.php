@@ -77,7 +77,7 @@ Route::delete('/options/{option}', [OptionController::class, 'destroy'])->name('
 
 
 Route::get('menu/{restaurant}', [MenuController::class, 'showMenu'])->name('menu.show');
-
+Route::post('menu/', [MenuController::class, 'store'])->name('menu.store');
 
 Route::post('/product/{product}/add-section-option', [ProductoController::class, 'addSectionOptionToProduct'])->name('product.add-section-option');
 Route::delete('/product/{product}/section-option/{sectionOption}', [ProductoController::class, 'removeSectionOption'])->name('product.remove-section-option');

@@ -240,6 +240,8 @@ var isProductViewed = false;
 
 $(document).ready(function() {
 
+
+
     $('#sidebar').on('click', '.increaseCantidadProducto', function() {
 
         // obtén el precio del producto actual
@@ -457,11 +459,44 @@ $('#sidebar').on('click', '.decreaseOption', function() {
 
 });
 
+function getTotal(){
+    var cart = localStorage.getItem('cart');
+    cart = cart ? JSON.parse(cart) : [];
+
+    var total = 0;
+
+    for (var i = 0; i < cart.length; i++) {
+        var product = cart[i];
+        var productTotal = 0; // Total del producto actual
+
+        // Recorre las opciones seleccionadas en este producto
+        for (var j = 0; j < product.selectedOptions.length; j++) {
+            var option = product.selectedOptions[j];
+
+            // Calcula el costo total de esta opción (precio * cantidad)
+            var optionTotal = option.price * option.quantity;
+
+            // Agrega el costo total de esta opción al costo total del producto
+            productTotal += optionTotal;
+        }
+
+        // Multiplica el costo total del producto por la cantidad del producto
+        productTotal *= product.quantity;
+
+
+        productTotal += (product.price * product.quantity);
+
+        // Agrega el costo total del producto al total del carrito
+        total += productTotal;
+    }
+
+    return total;
+}
+
 function addToCart(product_id, quantity, selectedOptions) {
     var cart = localStorage.getItem('cart');
     cart = cart ? JSON.parse(cart) : [];
 
-    console.log(selectedOptions);
 
     var productPrice = parseFloat($('#product-details-' + product_id).find('.product-price').text().replace('$', ''));
     var productName = $('#product-details-' + product_id).find('h3').text();
@@ -514,26 +549,129 @@ function addToCart(product_id, quantity, selectedOptions) {
 
 // Función para mostrar el carrito
 function showForm() {
-    console.log('a');
     var cartContainer = $('#cart-container');
     cartContainer.empty();  // Limpiar el contenido existente
 
     // Mostrar el total del carrito
+
+    var cart = localStorage.getItem('cart');
+    cart = cart ? JSON.parse(cart) : [];
+
+    let total = getTotal();
+
     cartContainer.append(`
 
-    <div style="width: 80%;" class="mt-5 flex flex-col p-5 bg-gray-100 items-center">
-        <h2 class="text-blue-950 font-bold text-lg">Datos personales</h2>
-        <div style="width: 80%;" class="mt-2 flex justify-between">
-            <p class="text-blue-950">{{$option->nombre}}</p>
+    <form method="POST" action="{{route('menu.store')}}" class="w-full flex flex-col items-center">
+        @csrf
+        <input type="hidden" name="restaurante" value="{{$restaurant->id}}">
+        <h1 class="text-3xl text-blue-900 mt-5 font-bold">LLena los datos</h1>
+        <div style="width: 80%;" class="mt-5 flex flex-col p-5 bg-gray-100 items-center rounded">
+                <h2 class="text-blue-950 font-bold text-lg">Datos personales</h2>
+                <div style="width: 80%;" class="mt-1 flex justify-between flex-col">
+                    <label  class="mb-2 pr-5 mt-5 text-blue-900 font-medium">Nombre</label>
+                    <input class="border-blue-900 border rounded pt-1 pb-1 pl-2 border focus:outline-none" type="text" name="nombre" placeholder="Nombre" required>
+                </div>
+                <div style="width: 80%;" class="mt-1 flex justify-between flex-col">
+                    <label  class="mb-2 pr-5 mt-5 text-blue-900 font-medium">Teléfono</label>
+                    <input class="border-blue-900 border rounded pt-1 pb-1 pl-2 border focus:outline-none" type="text" name="telefono" placeholder="Teléfono" required>
+                </div>
         </div>
-    </div>
 
+        <div style="width: 80%;" class="mt-5 flex flex-col p-5 bg-gray-100 items-center rounded">
+                <h2 class="text-blue-950 font-bold text-lg">Tipo de entrega</h2>
+                <div style="width: 80%;" class="mt-1 flex justify-between flex-col">
+                    <div style="width: 80%;" class="mt-1 flex justify-between">
+                        <p class="text-blue-950">Envío a domicilio</p>
+                        <input type="radio" id="envioDomicilio" name="tipoEntrega" value="Envío a Domicilio" checked >
+                    </div>
+                    <div style="width: 80%;" class="mt-1 flex justify-between">
+                        <p class="text-blue-950">Pasar a recoger</p>
+                        <input type="radio" id="pasarRecoger" name="tipoEntrega" value="Pasar a recogerlo" >
+                    </div>
+                    <div style="width: 80%;" class="mt-1 flex justify-between">
+                        <p class="text-blue-950">Comer en restaurante</p>
+                        <input type="radio" id="comerRestaurante" name="tipoEntrega" value="Comer en el restaurante" >
+                    </div>
+                </div>
+        </div>
+
+        <div style="width: 80%;" class="mt-5 flex flex-col p-5 bg-gray-100 items-center rounded" id="tipoEntrega">
+                <h2 class="text-blue-950 font-bold text-lg">Dirección de entrega</h2>
+                <div style="width: 80%;" class="mt-1 flex justify-between flex-col">
+                    <label  class="mb-2 pr-5 mt-5 text-blue-900 font-medium">Colonia</label>
+                    <input class="border-blue-900 border rounded pt-1 pb-1 pl-2 border focus:outline-none" type="text" name="colonia" placeholder="Colonia">
+                </div>
+                <div style="width: 80%;" class="mt-1 flex justify-between flex-col">
+                    <label  class="mb-2 pr-5 mt-5 text-blue-900 font-medium">Calle</label>
+                    <input class="border-blue-900 border rounded pt-1 pb-1 pl-2 border focus:outline-none" type="text" name="calle" placeholder="Calle">
+                </div>
+                <div style="width: 80%;" class="mt-1 flex justify-between flex-col">
+                    <label  class="mb-2 pr-5 mt-5 text-blue-900 font-medium">Número exterior</label>
+                    <input class="border-blue-900 border rounded pt-1 pb-1 pl-2 border focus:outline-none" type="text" name="numeroExterior" placeholder="Número exterior">
+                </div>
+                <div style="width: 80%;" class="mt-1 flex justify-between flex-col">
+                    <label  class="mb-2 pr-5 mt-5 text-blue-900 font-medium">Número interior</label>
+                    <input class="border-blue-900 border rounded pt-1 pb-1 pl-2 border focus:outline-none" type="text" name="numeroInterior" placeholder="Número interior">
+                </div>
+        </div>
+
+        <div style="width: 80%;" class="mt-5 flex flex-col p-5 bg-gray-100 items-center rounded">
+                <h2 class="text-blue-950 font-bold text-lg">Método de pago ($${total})</h2>
+                <div style="width: 80%;" class="mt-1 flex justify-between flex-col">
+                    <div style="width: 80%;" class="mt-1 flex justify-between">
+                        <p class="text-blue-950">Pago en efectivo</p>
+                        <input type="radio" id="efectivo" name="metodoPago" value="Efectivo" checked >
+                    </div>
+
+                    <div style="width: 80%;" class="mt-1 flex justify-between" id="inputEfectivo">
+                        <input class="border-blue-900 border rounded pt-1 pb-1 pl-2 border focus:outline-none" type="number" step=0.1 name="efectivo" placeholder="¿$Con cuanto pagas?">
+                    </div>
+
+                    <div style="width: 80%;" class="mt-1 flex justify-between">
+                        <p class="text-blue-950">Transferencia</p>
+                        <input type="radio" id="transferencia" name="metodoPago" value="Transferencia" >
+                    </div>
+
+                    <div style="width: 80%;" class="mt-1 flex justify-between">
+                        <p class="text-blue-950">Terminal</p>
+                        <input type="radio" id="terminal" name="metodoPago" value="Terminal" >
+                    </div>
+                </div>
+        </div>
+
+        <button type="submit" style="width: 80%" class="mt-5 mb-5 hover:bg-blue-900 text-white bg-blue-800 mt-2 pt-1 pb-1 pl-3 pr-3 self-center flex justify-center items-center border-blue-800 border-2 rounded-lg">
+            <img class="w-6 h-6"  src="{{ asset('images/marketcar.svg') }}">
+            <p class="cart-amount ml-2 text-lg ">Hacer mi pedido: $${total}</p>
+        </button>
+
+        <div style="width: 80%;" class="mt-5 flex flex-col p-5 items-center rounded">
+        </div>
+
+    </form>
 
     `);
+
+
+    // Obtener los datos del carrito desde el localStorage
+    var cart = localStorage.getItem('cart');
+    cart = cart ? JSON.parse(cart) : [];
+
+    // Agregar un campo oculto al formulario para el carrito
+    var cartInput = document.createElement('input');
+    cartInput.type = 'hidden';
+    cartInput.name = 'cart'; // Nombre del campo en el formulario
+    cartInput.value = JSON.stringify(cart); // Convertir el carrito a una cadena JSON
+
+    // Acceder al elemento DOM del formulario usando [0] o .get(0)
+    let form = $('form').first()[0]; // O $('form').first().get(0);
+
+    // Agregar el campo oculto al formulario
+    form.appendChild(cartInput);
 
     // Mostrar el div del carrito
     cartContainer.removeClass('hidden');
     $('#overlay').show();
+
 }
 
 
@@ -632,6 +770,46 @@ $('.view-cart').on('click', function(e) {
 
 $(document).on('click', '.continuar-pedido', function() {
     showForm();
+});
+
+$(document).on('click', '#terminal', function() {
+    let efectivoPago = $('#inputEfectivo');
+
+    efectivoPago.hide();
+
+});
+
+$(document).on('click', '#transferencia', function() {
+    let efectivoPago = $('#inputEfectivo');
+
+    efectivoPago.hide();
+
+});
+
+$(document).on('click', '#efectivo', function() {
+    let efectivoPago = $('#inputEfectivo');
+
+    efectivoPago.show();
+
+});
+
+$(document).on('click', '#envioDomicilio', function() {
+    let tipoEntregaDiv = $('#tipoEntrega');
+
+    tipoEntregaDiv.show();
+
+});
+
+$(document).on('click', '#pasarRecoger', function() {
+    let tipoEntregaDiv = $('#tipoEntrega');
+
+    tipoEntregaDiv.hide();
+});
+
+$(document).on('click', '#comerRestaurante', function() {
+    let tipoEntregaDiv = $('#tipoEntrega');
+
+    tipoEntregaDiv.hide();
 });
 
 // Evento para el botón "Eliminar" en el carrito

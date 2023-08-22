@@ -17,7 +17,7 @@
 
     <div class="flex items-center justify-start w-full">
         <label style="width:160px;" class="pb-5 pr-5 mt-2 text-blue-900 font-medium">Telefono:</label>
-        <input class="border-blue-900 border rounded pt-1 pb-1 pl-2 border focus:outline-none" type="text" name="telefono" maxlength="10" placeholder="Número del restaurante" value="{{$restaurant->telefono}}">
+        <input class="border-blue-900 border rounded pt-1 pb-1 pl-2 border focus:outline-none" type="text" name="telefono" maxlength="14" placeholder="Número del restaurante" value="{{$restaurant->telefono}}">
     </div>
 
       <div class="flex items-center justify-start w-full">
